@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, jsonify
+from flask import Flask, request, render_template, jsonify
 import anthropic
 import os
 import logging
@@ -33,40 +33,8 @@ def get_claude_response(message):
 
 @app.route("/")
 def home():
-    return render_template_string(
-        """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>SMS Messages</title>
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-            <script>
-                function fetchMessages() {
-                    $.getJSON('/messages', function(data) {
-                        console.log('messages:', data);
-                        $('#messages').empty();
-                        data.forEach(function(item) {
-                            $('#messages').append('<li>Message: ' + item.message + '<br>Claude: ' + item.claude_response + '</li>');
-                        });
-                    });
-                }
-
-                $(document).ready(function() {
-                    fetchMessages();
-                    setInterval(fetchMessages, 5000);  // Fetch messages every 5 seconds
-                });
-            </script>
-        </head>
-        <body>
-            <h1>Text your message to {{ phone_number }}</h1>
-            <h2>Received Messages:</h2>
-            <ul id="messages">
-            </ul>
-        </body>
-        </html>
-    """,
+    return render_template(
+        "index.html",
         phone_number="+18335931560",
         messages=messages,
     )
