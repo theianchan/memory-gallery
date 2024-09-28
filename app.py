@@ -1,5 +1,5 @@
-from flask import Flask, request, render_template_string
-from twilio.twiml.messaging_response import MessagingResponse
+from flask import Flask, request, render_template_string, jsonify
+# from twilio.twiml.messaging_response import MessagingResponse
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -11,30 +11,47 @@ messages = []
 @app.route('/')
 def home():
     return render_template_string('''
-        <h1>Text your message to {{ phone_number }}</h1>
-        <h2>Received Messages:</h2>
-        <ul>
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>SMS Messages</title>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+                function fetchMessages() {
+                    $.getJSON('/messages', function(data) {
+                        $('#messages').empty();
+                        data.forEach(function(message) {
+                            $('#messages').append('<li>' + message + '</li>');
+                        });
+                    });
+                }
+
+                $(document).ready(function() {
+                    fetchMessages();
+                    setInterval(fetchMessages, 5000);  // Fetch messages every 5 seconds
+                });
+            </script>
+        </head>
+        <body>
+            <h1>Text your message to {{ phone_number }}</h1>
+            <h2>Received Messages:</h2>
+            <ul id="messages">
+            </ul>
+        </body>
+        </html>
     ''', phone_number="+18335931560", messages=messages)
+
+@app.route('/messages')
+def get_messages():
+    return jsonify(messages)
 
 @app.route('/sms', methods=['POST'])
 def sms_reply():
-    # Log the incoming request
-    app.logger.debug(f"Received SMS webhook. Headers: {request.headers}")
-    app.logger.debug(f"Form data: {request.form}")
-    app.logger.debug(f"Full URL: {request.url}")
-
-    # Rest of your code here
     message_body = request.form['Body']
     messages.append(message_body)
     
-    # resp = MessagingResponse()
-    # resp.message("Thank you for your message!")
-    
-    # return str(resp)
     return 'Successfully received', 200
 
 if __name__ == '__main__':
