@@ -1,7 +1,10 @@
 from flask import Flask, request, render_template, jsonify
+from dotenv import load_dotenv
 import anthropic
 import os
 import logging
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -9,7 +12,8 @@ logging.basicConfig(
 
 app = Flask(__name__)
 
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+phone_number = os.getenv("PHONE_NUMBER")
 
 messages = []
 
@@ -35,7 +39,7 @@ def get_claude_response(message):
 def home():
     return render_template(
         "index.html",
-        phone_number="+18335931560",
+        phone_number=phone_number,
         messages=messages,
     )
 
