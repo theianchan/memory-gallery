@@ -4,7 +4,11 @@ To install on new machine:
 - `pip install -r requirements.txt`
 - `brew install ngrok`
 - Log in to `https://dashboard.ngrok.com/` for auth instructions
-- export ANTHROPIC_API_KEY='$KEY'
+- Create a `.env` file with 
+```
+ANTHROPIC_API_KEY=$KEY
+PHONE_NUMBER=$PHONE
+```
 
 To run locally: 
 - `source venv/bin/activate`
