@@ -8,10 +8,21 @@
     <script>
         function fetchMessages() {
             $.getJSON('/messages', function(data) {
-                console.log('messages:', data);
+                // console.log('messages:', data);
                 $('#messages').empty();
                 data.forEach(function(item) {
-                    $('#messages').append('<li>Message: ' + item.message + '<br>Claude: ' + item.claude_response + '</li>');
+                    var messageHtml = '<li>' +
+                        'Message: ' + item.message + '<br>' +
+                        'Claude: ' + item.claude_response;
+                    
+                    if (item.image_filename) {
+                        messageHtml += '<br><img src="/static/generated_images/' + 
+                            item.image_filename + 
+                            '" alt="Generated Image" style="max-width: 300px;">';
+                    }
+                    
+                    messageHtml += '</li>';
+                    $('#messages').append(messageHtml);
                 });
             });
         }
@@ -21,6 +32,17 @@
             setInterval(fetchMessages, 5000);  // Fetch messages every 5 seconds
         });
     </script>
+    <style>
+        #messages {
+            list-style-type: none;
+            padding: 0;
+        }
+        #messages li {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>Text your message to {{ phone_number }}</h1>
