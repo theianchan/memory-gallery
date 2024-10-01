@@ -151,9 +151,7 @@ def get_image_prompts_captions(message):
     green, purple, white, etc.
 
     For each caption, please write in a style similar to these 6 examples,
-    but do not repeat any phrasing. Avoid making up specific locations in 
-    the caption, unless the user specifies a location in their submission.
-    The caption should be between 55-65 words.
+    but do not repeat any phrasing.
 
     1. A man and a woman look through elevator doors into a dark, red-lit 
     Shanghai club. They've followed each other across three countries to 
@@ -196,6 +194,17 @@ def get_image_prompts_captions(message):
     harm inflicted on two people he falsely believed didn't care about each 
     other, a belief based on a lie told on a rooftop bar as fireworks erupted 
     from the Taipei 101.
+
+    Additionally:
+
+    - Start the caption with descriptive language, before taking a more 
+    narrative direction (see the examples, where the first sentence could
+    be a prompt, and then the following lines diverge).
+
+    - Avoid making up specific locations in the caption, unless the user 
+    specifies a location in their submission.
+
+    - The caption should be between 60-70 words.
 
     Send each image prompt-caption pair as a python-formatted dictionary in 
     a list. Example:
@@ -278,17 +287,18 @@ def get_image_prompts_captions(message):
 
     - Start with "Painting with detailed, palette knife-like brushstrokes" 
     for stylistic consistency.
+
     - Make sure every prompt includes at least one person, but you can 
     include more. Portray a diverse set of subjects.
+
     - Include a different 'camera angle' ie. wide shot, close up, top down,
     over the shoulder, etc.
+
     - Include different lighting instructions ie. red, orange, yellow, blue,
     green, purple, white, etc.
 
     For each caption, please write in a style similar to these 6 examples,
-    but do not repeat any phrasing. Avoid making up specific locations in 
-    the caption, unless the user specifies a location in their submission.
-    The caption should be between 55-65 words.
+    but do not repeat any phrasing.
 
     1. A man and a woman look through elevator doors into a dark, red-lit 
     Shanghai club. They've followed each other across three countries to 
@@ -332,6 +342,17 @@ def get_image_prompts_captions(message):
     other, a belief based on a lie told on a rooftop bar as fireworks erupted 
     from the Taipei 101.
 
+    Additionally:
+
+    - Start the caption with descriptive language, before taking a more 
+    narrative direction (see the examples, where the first sentence could
+    be a prompt, and then the following lines diverge).
+
+    - Avoid making up specific locations in the caption, unless the user 
+    specifies a location in their submission.
+
+    - The caption should be between 60-70 words.
+
     Send each image prompt-caption pair as a python-formatted dictionary in 
     a list. Example:
     ```
@@ -350,41 +371,6 @@ def get_image_prompts_captions(message):
     DO NOT INCLUDE ANYTHING IN YOUR RESPONSE OTHER THAN THE LIST. Your response 
     will be consumed by a pipeline, and deviating from the list format will 
     break the pipeline.
-    """
-
-    orig_prompt = f"""We're working on an art installation about memory. 
-    We want to take a single, user-submitted memory and have an image
-    generator (Stable Diffusion) create 4 versions of it. 
-    
-    1 version should be as close to the original as possible, while 
-    the other 3 should contain notable deviations without losing the
-    original completely. 
-
-    Please generate 4 image prompts based on this user-submitted message: 
-    ```
-    {message}
-    ```
-
-    The user was asked to submit a memory as their message. They may or 
-    may not have done so, since we cannot control user input. Do your best 
-    to generate 4 prompts that will result in evocative, stylized 'memories'.
-    
-    For each prompt:
-
-    - Start with "Detailed painting of" for stylistic consistency
-    - Make sure every prompt includes at least one person, but you can include more
-    - Include a different 'camera angle' ie. wide shot, close up, top down, etc
-    - Include a different lighting instruction ie. "blue-lit scene", 
-    "yellow sunlight" etc
-
-    Send each prompt as a element in a python list, for example:
-    ```
-    ["Prompt 1", "Prompt 2", "Prompt 3", "Prompt 4"]
-    ```
-
-    DO NOT INCLUDE ANYTHING IN YOUR RESPONSE OTHER THAN THE LIST.
-    Your response will be consumed by a pipeline, and deviating 
-    from the list format will break the pipeline.
     """
 
     try:

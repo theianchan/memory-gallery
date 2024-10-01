@@ -13,7 +13,6 @@
 
                 data.forEach(function(item) {
                     if (skippedCells.includes(cellNumber)) {
-                        console.log("Skipping " + cellNumber);
                         cellNumber++;
                     }
                     
@@ -58,7 +57,7 @@
         }
 
         .grid-cell {
-            border: 1px solid black;
+            border: 3px solid white;
             overflow: hidden;
             display: flex;
             flex-direction: column;
