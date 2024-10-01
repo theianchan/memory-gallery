@@ -377,9 +377,9 @@ def get_image_prompts_captions(message):
         response = client.messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=1024,
-            messages=[{"role": "user", "content": full_prompt_2}],
+            messages=[{"role": "user", "content": full_prompt}],
         )
-        logging.debug(f"Claude prompted: {full_prompt_2}")
+        logging.debug(f"Claude prompted: {full_prompt}")
         logging.debug(f"Claude responded (raw): {response}")
         logging.debug(f"Claude responded (no strip): {response.content[0].text}")
         return response.content[0].text.strip('"')
