@@ -19,3 +19,10 @@ To run locally:
 Note that we use 5001 since the localhost default 5000 is occupied.
 
 `pip freeze > requirements.txt` when new libraries are installed.
+
+Remaining TODO:
+- Database storage
+- Enhanced error handling
+- Input validation
+- Async processing (seems to handle this pretty well already)
+- Production-ready logging
