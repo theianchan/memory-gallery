@@ -23,41 +23,39 @@ stability_api_key = os.getenv("STABILITY_API_KEY")
 
 client = anthropic.Anthropic(api_key=anthropic_api_key)
 
-messages = []
+memories = []
 
 
 def send_generation_request(prompt, negative_prompt=""):
     host = "https://api.stability.ai/v2beta/stable-image/control/style"
-    headers = {
-        "Accept": "image/*",
-        "Authorization": f"Bearer {stability_api_key}"
-    }
+    headers = {"Accept": "image/*", "Authorization": f"Bearer {stability_api_key}"}
 
     params = {
-        'fidelity': (None, '0.5'),
-        'image': os.path.join("static", "images", "reference", "style-all.jpg"),
-        'seed': (None, '0'),
-        'output_format': (None, 'png'),
-        'prompt': (None, prompt),
-        'negative_prompt': (None, negative_prompt),
-        'aspect_ratio': (None, '16:9')
+        "fidelity": (None, "0.5"),
+        "image": os.path.join("static", "images", "reference", "style-all.jpg"),
+        "seed": (None, "0"),
+        "output_format": (None, "png"),
+        "prompt": (None, prompt),
+        "negative_prompt": (None, negative_prompt),
+        "aspect_ratio": (None, "16:9"),
     }
 
     files = {}
     image = params.pop("image", None)
     mask = params.pop("mask", None)
-    if image is not None and image != '':
-        files["image"] = open(image, 'rb')
-    if mask is not None and mask != '':
-        files["mask"] = open(mask, 'rb')
-    if len(files)==0:
-        files["none"] = ''
+    if image is not None and image != "":
+        files["image"] = open(image, "rb")
+    if mask is not None and mask != "":
+        files["mask"] = open(mask, "rb")
+    if len(files) == 0:
+        files["none"] = ""
 
-    response = requests.post(host, headers=headers, files=files, data=params) 
+    response = requests.post(host, headers=headers, files=files, data=params)
     if not response.ok:
         raise Exception(f"HTTP {response.status_code}: {response.text}")
 
     return response
+
 
 def generate_and_save_image(prompt):
     try:
@@ -67,7 +65,7 @@ def generate_and_save_image(prompt):
 
         image = Image.open(BytesIO(response.content))
         filename = f"image_{uuid.uuid4()}.png"
-        filepath = os.path.join("static", "generated_images", filename)
+        filepath = os.path.join("static", "images", "generated", filename)
         image.save(filepath)
         return filename
     except Exception as e:
@@ -97,14 +95,14 @@ def home():
     return render_template(
         "index.html",
         phone_number=phone_number,
-        messages=messages,
+        memories=memories,
     )
 
 
-@app.route("/messages")
-def get_messages():
-    logging.debug(f"Returning messages: {messages}")
-    return jsonify(messages)
+@app.route("/memories")
+def get_memories():
+    logging.debug(f"Returning memories: {memories}")
+    return jsonify(memories)
 
 
 @app.route("/sms", methods=["POST"])
@@ -117,7 +115,7 @@ def sms_reply():
 
     image_filename = generate_and_save_image(claude_response)
 
-    messages.append(
+    memories.append(
         {
             "message": message_body,
             "claude_response": claude_response,
@@ -125,11 +123,11 @@ def sms_reply():
         }
     )
 
-    logging.debug(f"Messages after append: {messages}")
+    logging.debug(f"Memories after append: {memories}")
 
     return "Successfully received", 200
 
 
 if __name__ == "__main__":
-    os.makedirs(os.path.join("static", "generated_images"), exist_ok=True)
+    os.makedirs(os.path.join("static", "images", "generated"), exist_ok=True)
     app.run(host="0.0.0.0", port=5001, debug=True)

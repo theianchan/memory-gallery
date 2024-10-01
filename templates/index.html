@@ -3,51 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS Messages</title>
+    <title>MAKING MEMORY</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function fetchMessages() {
-            $.getJSON('/messages', function(data) {
-                // console.log('messages:', data);
-                $('#messages').empty();
+        function fetchMemories() {
+            $.getJSON('/memories', function(data) {
+                $('#cell-1').empty();
                 data.forEach(function(item) {
-                    var messageHtml = '<li>' +
-                        'Message: ' + item.message + '<br>' +
-                        'Claude: ' + item.claude_response;
-                    
-                    if (item.image_filename) {
-                        messageHtml += '<br><img src="/static/generated_images/' + 
-                            item.image_filename + 
-                            '" alt="Generated Image" style="max-width: 300px;">';
-                    }
-                    
-                    messageHtml += '</li>';
-                    $('#messages').append(messageHtml);
+                    var messageHtml = '<img src="/static/images/generated/' + 
+                        item.image_filename +
+                        '" alt="">' +
+                        '<p><em>' +
+                        item.claude_response +
+                        '</em></p>';
+                    $('#cell-1').append(messageHtml);
                 });
             });
         }
 
         $(document).ready(function() {
-            fetchMessages();
-            setInterval(fetchMessages, 5000);  // Fetch messages every 5 seconds
+            fetchMemories();
+            setInterval(fetchMemories, 5000);
         });
     </script>
     <style>
-        #messages {
-            list-style-type: none;
-            padding: 0;
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        #messages li {
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            padding: 10px;
+
+        .grid-container {
+            --grid-width: 1800px;
+            --grid-height: 900px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            width: var(--grid-width);
+            height: var(--grid-height);
+        }
+
+        .grid-cell {
+            border: 1px solid black;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .grid-cell > * {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; 
+            text-align: center;
+        }
+
+        .grid-cell > p {
+            font-size: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Text your message to {{ phone_number }}</h1>
-    <h2>Received Messages:</h2>
-    <ul id="messages">
-    </ul>
+    <div class="grid-container">
+        <div id="cell-1" class="grid-cell"></div>
+        <div id="cell-2" class="grid-cell"></div>
+        <div id="cell-3" class="grid-cell">
+            <img src="/static/images/gallery/amber.jpg" alt="">
+            <p><em>Prompt: A man and a woman look through elevator doors into a dark, red-lit Shanghai club. They've followed each other across three countries to get here, but now it's 8AM, they just stumbled to the building from a taxi across a street full of people heading to work in unflinching daylight, and the molly is starting to wear off but she can't get her jaw to unclench --v 6.0 --ar 4:3</em></p>
+        </div>
+        <div id="cell-4" class="grid-cell"></div>
+        <div id="cell-5" class="grid-cell">
+            <img src="/static/images/gallery/fake.jpg" alt="">
+            <p><em>Prompt: Detailed painting of a man and woman in conversation on the window ledge of a small, artsy bedroom. The sound of glass shattering against their locked door suggests that the scheme to make her cheating ex-boyfriend jealous worked a little too well, and now they're trying to keep calm while waiting for the lights to go out in the living room before they can dare to fall asleep --v 6.0 --ar 4:3</em></p>
+        </div>
+        <div id="cell-6" class="grid-cell"></div>
+        <div id="cell-7" class="grid-cell"></div>
+        <div id="cell-8" class="grid-cell"></div>
+        <div id="cell-9" class="grid-cell">
+            <img src="/static/images/gallery/frank.jpg" alt="">
+            <p><em>Prompt: Cinematic shot of two strangers on a rooftop bar. In the background, fireworks erupt from the Taipei 101, bathing the scene in purple light. She tells him that she broke up with her boyfriend today, she doesn't know where he is, he doesn't care about her. He'll learn later tonight, miles away and hours too late, that while her story may or may not be factual, it definitely isn't true --v 6.0 --ar 4:3</em></p>
+        </div>
+        <div id="cell-10" class="grid-cell"></div>
+        <div id="cell-11" class="grid-cell">
+            <h1>Text your memory to {{ phone_number }}</h1>
+        </div>
+        <div id="cell-12" class="grid-cell"></div>
+        <div id="cell-13" class="grid-cell">
+            <img src="/static/images/gallery/blind.jpg" alt="">
+            <p><em>Prompt: A couple meets for the first time over dine-in-the-dark dinner at an upscale restaurant run by blind waitstaff. Earlier today, faced with his hesitation, she got to say, "I'll see you at 8 in the lobby. Don't be late." He got to say, "Get me on the next flight to Bangkok." Tomorrow morning, as he's leaving for the airport, she'll say, "Want to have dinner with my parents?" And he does --v 6.0 --ar 4:3</em></p>
+        </div>
+        <div id="cell-14" class="grid-cell"></div>
+        <div id="cell-15" class="grid-cell"></div>
+        <div id="cell-16" class="grid-cell"></div>
+        <div id="cell-17" class="grid-cell">
+            <img src="/static/images/gallery/zouk.jpg" alt="">
+            <p><em>Prompt: Blue-lit scene of three friends on the dance floor in a dark club. Without warning, the music is silenced and a harsh spotlight shines from the balcony above. An hour ago, one of them took a pill in the parking lot for the first time, and now he's fighting to keep the black spots from his eyes as he prepares identification for the police in a country where drug use carries the death penalty --v 6.0 --ar 4:3</em></p>
+        </div>
+        <div id="cell-18" class="grid-cell"></div>
+        <div id="cell-19" class="grid-cell">
+            <img src="/static/images/gallery/wrong.jpg" alt="">
+            <p><em>Prompt: A woman feeds a deer as the sun shines, surrounded by lush vegetation and mossy rocks. The deer park lies halfway across the ocean between her and a man she met at a dating event, an event organized to repent for harm inflicted on two people he falsely believed didn't care about each other, a belief based on a lie told on a rooftop bar as fireworks erupted from the Taipei 101 --v 6.0 --ar 4:3</em></p>
+        </div>
+        <div id="cell-20" class="grid-cell"></div>
+        <div id="cell-21" class="grid-cell"></div>
+    </div>
 </body>
 </html>
