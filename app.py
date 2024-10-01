@@ -4,6 +4,8 @@ import anthropic
 import os
 import logging
 import requests
+import random
+import ast
 from io import BytesIO
 from PIL import Image
 import time
@@ -30,14 +32,18 @@ def send_generation_request(prompt, negative_prompt=""):
     host = "https://api.stability.ai/v2beta/stable-image/control/style"
     headers = {"Accept": "image/*", "Authorization": f"Bearer {stability_api_key}"}
 
+    references = ['amber.jpg', 'blind.jpg', 'fake.jpg', 'frank.jpg', 'wrong.jpg', 'zouk.jpg']
+    reference_image = random.choice(references)
+    image_path = os.path.join("static", "images", "gallery", reference_image)
+
     params = {
         "fidelity": (None, "0.5"),
-        "image": os.path.join("static", "images", "reference", "style-all.jpg"),
+        "image": image_path,
         "seed": (None, "0"),
         "output_format": (None, "png"),
         "prompt": (None, prompt),
         "negative_prompt": (None, negative_prompt),
-        "aspect_ratio": (None, "16:9"),
+        "aspect_ratio": (None, "3:2"),
     }
 
     files = {}
@@ -73,10 +79,42 @@ def generate_and_save_image(prompt):
         return None
 
 
-def get_claude_response(message):
-    prompt = f"""Generate a short, creative description 
-        for an art piece based on this message: '{message}'. 
-        Keep it under 50 words."""
+def get_image_prompts(message):
+    prompt = f"""We're working on an art installation about memory. 
+    We want to take a single, user-submitted memory and have an image
+    generator (Stable Diffusion) create 4 versions of it. 
+    
+    1 version should be as close to the original as possible, while 
+    the other 3 should contain notable deviations without losing the
+    original completely. 
+
+    Please generate 4 image prompts based on this user-submitted message: 
+    ```
+    {message}
+    ```
+
+    The user was asked to submit a memory as their message. They may or 
+    may not have done so, since we cannot control user input. Do your best 
+    to generate 4 prompts that will result in evocative, stylized 'memories'.
+    
+    For each prompt:
+
+    - Start with "Detailed painting of" for stylistic consistency
+    - Make sure every prompt includes at least one person, but you can include more
+    - Include a different 'camera angle' ie. wide shot, close up, top down, etc
+    - Include a different lighting instruction ie. "blue-lit scene", 
+    "yellow sunlight" etc
+
+    Send each prompt as a element in a python list, for example:
+    ```
+    ["Prompt 1", "Prompt 2", "Prompt 3", "Prompt 4"]
+    ```
+
+    DO NOT INCLUDE ANYTHING IN YOUR RESPONSE OTHER THAN THE LIST.
+    Your response will be consumed by a pipeline, and deviating 
+    from the list format will break the pipeline.
+    """
+
     try:
         response = client.messages.create(
             model="claude-3-sonnet-20240229",
@@ -110,18 +148,19 @@ def sms_reply():
     message_body = request.form["Body"]
     logging.debug(f"Text received: {message_body}")
 
-    claude_response = get_claude_response(message_body)
-    logging.debug(f"Claude responded: {claude_response}")
+    prompts = get_image_prompts(message_body)
+    logging.debug(f"Claude responded: {prompts}")
 
-    image_filename = generate_and_save_image(claude_response)
+    prompts = ast.literal_eval(prompts)
 
-    memories.append(
-        {
-            "message": message_body,
-            "claude_response": claude_response,
-            "image_filename": image_filename,
-        }
-    )
+    for prompt in prompts:
+        image_filename = generate_and_save_image(prompt)
+        memories.append(
+            {
+                "prompt": prompt,
+                "image_filename": image_filename,
+            }
+        )
 
     logging.debug(f"Memories after append: {memories}")
 

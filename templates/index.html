@@ -8,16 +8,28 @@
     <script>
         function fetchMemories() {
             $.getJSON('/memories', function(data) {
-                $('#cell-1').empty();
+                const skippedCells = [3, 5, 9, 11, 13, 17, 19];
+                let cellNumber = 1;
+
                 data.forEach(function(item) {
-                    var messageHtml = '<img src="/static/images/generated/' + 
-                        item.image_filename +
-                        '" alt="">' +
-                        '<p><em>' +
-                        item.claude_response +
-                        '</em></p>';
-                    $('#cell-1').append(messageHtml);
-                });
+                    if (skippedCells.includes(cellNumber)) {
+                        console.log("Skipping " + cellNumber);
+                        cellNumber++;
+                    }
+                    
+                    $(`#cell-${cellNumber}`).empty();
+
+                    var messageHtml = '<img src="/static/images/generated/' 
+                        + item.image_filename 
+                        + '" alt="">'
+                        + '<p><em>'
+                        + item.prompt
+                        + '</em></p>';
+
+                    $(`#cell-${cellNumber}`).append(messageHtml);
+
+                    cellNumber++;
+                })
             });
         }
 
@@ -50,7 +62,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
         }
 
