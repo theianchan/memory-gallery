@@ -32,16 +32,13 @@ def send_generation_request(prompt, negative_prompt=""):
     host = "https://api.stability.ai/v2beta/stable-image/control/style"
     headers = {"Accept": "image/*", "Authorization": f"Bearer {stability_api_key}"}
 
-    references = [
-        "amber.jpg",
-        "blind.jpg",
-        "fake.jpg",
-        "frank.jpg",
-        "wrong.jpg",
-        "zouk.jpg",
-    ]
-    reference_image = random.choice(references)
-    image_path = os.path.join("static", "images", "gallery", reference_image)
+    image_path = random.choice(
+        [
+            os.path.join("static", "images", "reference", f)
+            for f in os.listdir(os.path.join("static", "images", "reference"))
+            if f.lower().endswith(".jpg")
+        ]
+    )
 
     params = {
         "fidelity": (None, "0.5"),
@@ -63,7 +60,11 @@ def send_generation_request(prompt, negative_prompt=""):
     if len(files) == 0:
         files["none"] = ""
 
+    logging.debug(
+        f"Prompting Stability with image `{image_path}` and prompt `{prompt}`"
+    )
     response = requests.post(host, headers=headers, files=files, data=params)
+
     if not response.ok:
         raise Exception(f"HTTP {response.status_code}: {response.text}")
 
@@ -80,7 +81,10 @@ def generate_and_save_image(prompt):
         filename = f"image_{uuid.uuid4()}.png"
         filepath = os.path.join("static", "images", "generated", filename)
         image.save(filepath)
+        logging.debug(f"Saved image to `{filepath}`")
+
         return filename
+
     except Exception as e:
         logging.error(f"Error generating image: {e}")
         return None
@@ -142,7 +146,12 @@ def get_image_prompts_captions(message):
     for stylistic consistency.
 
     - Make sure every prompt includes at least one person, but you can 
-    include more. Portray a diverse set of subjects.
+    include more. Portray a diverse set of subjects. To do this, specifically
+    ask for subjects of different races - white, black, asian, hispanic,
+    picking randomly with each prompt.
+
+    - Aim to invoke a strong emotion (elation, warmth, nostalgia, melancholy) 
+    with your imagery, but avoid negative emotions.
 
     - Include a different 'camera angle' ie. wide shot, close up, top down,
     over the shoulder, etc.
@@ -201,10 +210,18 @@ def get_image_prompts_captions(message):
     narrative direction (see the examples, where the first sentence could
     be a prompt, and then the following lines diverge).
 
+    - Aim to portray a strong emotion (elation, warmth, nostalgia) with 
+    your caption, but avoid negative emotions.
+
+    - Avoid mentioning race in the caption.
+
     - Avoid making up specific locations in the caption, unless the user 
     specifies a location in their submission.
 
-    - The caption should be between 60-70 words.
+    - Avoid mentioning color in the caption, unless the user specifies a
+    color in their submission.
+
+    - The caption should be between 65-75 words.
 
     Send each image prompt-caption pair as a python-formatted dictionary in 
     a list. Example:
@@ -289,7 +306,12 @@ def get_image_prompts_captions(message):
     for stylistic consistency.
 
     - Make sure every prompt includes at least one person, but you can 
-    include more. Portray a diverse set of subjects.
+    include more. Portray a diverse set of subjects. To do this, specifically
+    ask for subjects of different races - white, black, asian, hispanic,
+    picking randomly with each prompt.
+
+    - Aim to invoke a strong emotion (elation, warmth, nostalgia, melancholy) 
+    with your imagery, but avoid negative emotions.
 
     - Include a different 'camera angle' ie. wide shot, close up, top down,
     over the shoulder, etc.
@@ -348,10 +370,18 @@ def get_image_prompts_captions(message):
     narrative direction (see the examples, where the first sentence could
     be a prompt, and then the following lines diverge).
 
+    - Aim to portray a strong emotion (elation, warmth, nostalgia) with 
+    your caption, but avoid negative emotions.
+
+    - Avoid mentioning race in the caption.
+
     - Avoid making up specific locations in the caption, unless the user 
     specifies a location in their submission.
 
-    - The caption should be between 60-70 words.
+    - Avoid mentioning color in the caption, unless the user specifies a
+    color in their submission.
+
+    - The caption should be between 65-75 words.
 
     Send each image prompt-caption pair as a python-formatted dictionary in 
     a list. Example:
@@ -374,19 +404,19 @@ def get_image_prompts_captions(message):
     """
 
     try:
+        logging.debug(f"Prompting Claude with: {full_prompt_2}")
         response = client.messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=1024,
-            messages=[{"role": "user", "content": full_prompt}],
+            messages=[{"role": "user", "content": full_prompt_2}],
         )
-        logging.debug(f"Claude prompted: {full_prompt}")
-        logging.debug(f"Claude responded (raw): {response}")
-        logging.debug(f"Claude responded (no strip): {response.content[0].text}")
+        logging.debug(f"Received response: {response}")
+
         return response.content[0].text.strip('"')
 
     except Exception as e:
         logging.error(f"Error getting Claude response: {e}")
-        return "Unable to generate description at this time."
+        return "Unable to get response at this time."
 
 
 @app.route("/")
@@ -410,9 +440,8 @@ def sms_reply():
     logging.debug(f"Text received: {message_body}")
 
     image_prompt_captions = get_image_prompts_captions(message_body)
-    logging.debug(f"Claude responded: {image_prompt_captions}")
-
     image_prompt_captions = ast.literal_eval(image_prompt_captions)
+    logging.debug(f"Prompt-caption pairs: {image_prompt_captions}")
 
     for pair in image_prompt_captions:
         image_filename = generate_and_save_image(pair["prompt"])
