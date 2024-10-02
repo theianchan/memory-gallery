@@ -7,12 +7,13 @@ To install on new machine:
 - Create a `.env` file with 
 ```
 ANTHROPIC_API_KEY=$KEY
+STABILITY_API_KEY=$KEY
 PHONE_NUMBER=$PHONE
 ```
 
 To run locally: 
 - `source venv/bin/activate`
-- `python app.py`
+- `NUM_MEMORIES=2 python app.py` (or whatever number of memories you want)
 - `ngrok http 5001`
 - Update Twilio webhook with new ngrok URL at (https://console.twilio.com/us1/develop/phone-numbers/manage/incoming/)
 
