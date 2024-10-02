@@ -24,6 +24,7 @@ To view database:
 - `sqlite3 memories.db`
 - `select * from memories;`
 
+Remaining TODO:
 - Database storage (implemented)
 - Display order
 - Enhanced error handling (not extremely worried about this)
