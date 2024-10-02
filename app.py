@@ -1,15 +1,15 @@
 from flask import Flask, request, render_template, jsonify
 from dotenv import load_dotenv
+from io import BytesIO
+from PIL import Image
 import anthropic
 import os
 import logging
 import requests
 import random
 import ast
-from io import BytesIO
-from PIL import Image
-import time
 import uuid
+import sqlite3
 
 load_dotenv()
 
@@ -26,6 +26,26 @@ stability_api_key = os.getenv("STABILITY_API_KEY")
 client = anthropic.Anthropic(api_key=anthropic_api_key)
 
 memories = []
+
+
+def get_db_connection():
+    conn = sqlite3.connect("memories.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("""CREATE TABLE IF NOT EXISTS memories
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        message TEXT NOT NULL,
+        prompt TEXT NOT NULL,
+        caption TEXT NOT NULL,
+        image_filename TEXT NOT NULL)"""
+    )
+    conn.commit()
+    conn.close()
 
 
 def send_generation_request(prompt, negative_prompt=""):
@@ -155,7 +175,7 @@ def get_image_prompts_captions(message):
 
     - Include a different 'camera angle' ie. wide shot, close up, top down,
     over the shoulder, etc.
-    
+
     - Include different lighting instructions ie. red, orange, yellow, blue,
     green, purple, white, etc.
 
@@ -430,33 +450,43 @@ def home():
 
 @app.route("/memories")
 def get_memories():
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("SELECT * FROM memories ORDER BY id DESC")
+    memories = [dict(row) for row in c.fetchall()]
+    conn.close()
     logging.debug(f"Returning memories: {memories}")
     return jsonify(memories)
 
 
 @app.route("/sms", methods=["POST"])
 def sms_reply():
-    message_body = request.form["Body"]
-    logging.debug(f"Text received: {message_body}")
+    message = request.form["Body"]
+    logging.debug(f"Text received: {message}")
 
-    image_prompt_captions = get_image_prompts_captions(message_body)
+    image_prompt_captions = get_image_prompts_captions(message)
     image_prompt_captions = ast.literal_eval(image_prompt_captions)
     logging.debug(f"Prompt-caption pairs: {image_prompt_captions}")
 
+    conn = get_db_connection()
+    c = conn.cursor()
+
     for pair in image_prompt_captions:
         image_filename = generate_and_save_image(pair["prompt"])
-        memories.append(
-            {
-                "caption": pair["caption"],
-                "image_filename": image_filename,
-            }
+        c.execute(
+            "INSERT INTO memories (message, prompt, caption, image_filename) VALUES (?, ?, ?, ?)",
+            (message, pair["prompt"], pair["caption"], image_filename),
         )
 
-    logging.debug(f"Memories after append: {memories}")
+    conn.commit()
+    conn.close()
+
+    logging.debug("Memories stored in database")
 
     return "Successfully received", 200
 
 
 if __name__ == "__main__":
     os.makedirs(os.path.join("static", "images", "generated"), exist_ok=True)
+    init_db()
     app.run(host="0.0.0.0", port=5001, debug=True)

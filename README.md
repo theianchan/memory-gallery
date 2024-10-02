@@ -20,9 +20,11 @@ Note that we use 5001 since the localhost default 5000 is occupied.
 
 `pip freeze > requirements.txt` when new libraries are installed.
 
-Remaining TODO:
+To view database:
+- `sqlite3 memories.db`
+- `select * from memories;`
 
-- Database storage
+- Database storage (implemented)
 - Display order
 - Enhanced error handling (not extremely worried about this)
 - Input validation (or this)
