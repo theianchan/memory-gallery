@@ -29,7 +29,7 @@ def home():
 def get_memories():
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("SELECT * FROM memories ORDER BY id DESC")
+    c.execute("SELECT * FROM memories ORDER BY RANDOM() LIMIT 12")
     memories = [dict(row) for row in c.fetchall()]
     conn.close()
     logging.debug(f"Returning memories: {memories}")
