@@ -13,7 +13,7 @@ PHONE_NUMBER=$PHONE
 
 To run locally: 
 - `source venv/bin/activate`
-- `NUM_MEMORIES=2 python app.py` (or whatever number of memories you want)
+- `NUM_MEMORIES=2 python -m app.main` (or whatever number of memories you want)
 - `ngrok http 5001`
 - Update Twilio webhook with new ngrok URL at (https://console.twilio.com/us1/develop/phone-numbers/manage/incoming/)
 
