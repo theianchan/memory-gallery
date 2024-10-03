@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAKING MEMORY</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/static/js/gallery.js"></script>
     <style>
         body, html {
             height: 100%;
@@ -70,6 +68,7 @@
         <div id="cell-11" class="grid-cell" style="justify-content: center">
             <h1 style="margin-bottom: 0;">Text a memory to<br>{{ phone_number }}</h1>
             <p style="font-size: 14px;">This can be short (I adopted a cat) or long, specific (I bought a Miata for my parents in Malaysia) or vague.<br><br>Which results feel like memory?</p>
+            <p style="font-size: 14px;" id="status"></p>
         </div>
         <div id="cell-12" class="grid-cell"></div>
         <div id="cell-13" class="grid-cell">
@@ -92,4 +91,9 @@
         <div id="cell-21" class="grid-cell"></div>
     </div>
 </body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const numMemories = {{ num_memories }};
+</script>
+<script src="/static/js/gallery.js"></script>
 </html>

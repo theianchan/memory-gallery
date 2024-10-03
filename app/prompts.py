@@ -61,9 +61,9 @@ def get_image_prompts_captions(message, num_memories=4):
     for stylistic consistency.
 
     - Make sure every prompt includes at least one person, but you can 
-    include more. Portray a diverse set of subjects. To do this, specifically
-    ask for subjects of different races - white, black, asian, hispanic,
-    picking randomly with each prompt.
+    include a couple more. Avoid crowds. Portray a diverse set of subjects. 
+    To do this, specifically ask for subjects of different races - white, 
+    black, asian, hispanic, picking randomly with each prompt.
 
     - Aim to invoke a strong emotion (elation, warmth, nostalgia, melancholy) 
     with your imagery, but avoid negative emotions.

@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, current_app
+import threading
 import os
 import logging
 import ast
@@ -13,6 +14,9 @@ logging.basicConfig(
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
+app.sms_lock = threading.Lock()
+app.sms_counter = 0
+
 memories = []
 
 
@@ -21,6 +25,7 @@ def home():
     return render_template(
         "index.html",
         phone_number=PHONE_NUMBER,
+        num_memories=NUM_MEMORIES,
         memories=memories,
     )
 
@@ -29,11 +34,16 @@ def home():
 def get_memories():
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("SELECT * FROM memories ORDER BY RANDOM() LIMIT 12")
+    c.execute("SELECT * FROM memories")
     memories = [dict(row) for row in c.fetchall()]
     conn.close()
     logging.debug(f"Returning memories: {memories}")
     return jsonify(memories)
+
+
+@app.route("/working")
+def get_working_status():
+    return jsonify(getattr(current_app, "working", False))
 
 
 @app.route("/sms", methods=["POST"])
@@ -41,24 +51,36 @@ def sms_reply():
     message = request.form["Body"]
     logging.debug(f"Text received: {message}")
 
-    image_prompt_captions = get_image_prompts_captions(message, NUM_MEMORIES)
-    image_prompt_captions = ast.literal_eval(image_prompt_captions)
-    logging.debug(f"Prompt-caption pairs: {image_prompt_captions}")
+    with app.sms_lock:
+        app.sms_counter += 1
+        if app.sms_counter == 1:
+            current_app.working = True
 
-    conn = get_db_connection()
-    c = conn.cursor()
+    try:
+        image_prompt_captions = get_image_prompts_captions(message, NUM_MEMORIES)
+        image_prompt_captions = ast.literal_eval(image_prompt_captions)
+        logging.debug(f"Prompt-caption pairs: {image_prompt_captions}")
 
-    for pair in image_prompt_captions:
-        image_filename = generate_and_save_image(pair["prompt"])
-        c.execute(
-            "INSERT INTO memories (message, prompt, caption, image_filename) VALUES (?, ?, ?, ?)",
-            (message, pair["prompt"], pair["caption"], image_filename),
-        )
+        conn = get_db_connection()
+        c = conn.cursor()
 
-    conn.commit()
-    conn.close()
+        for pair in image_prompt_captions:
+            image_filename = generate_and_save_image(pair["prompt"])
+            c.execute(
+                "INSERT INTO memories (message, prompt, caption, image_filename) VALUES (?, ?, ?, ?)",
+                (message, pair["prompt"], pair["caption"], image_filename),
+            )
 
-    logging.debug("Memories stored in database")
+        conn.commit()
+        conn.close()
+
+        logging.debug("Memories stored in database")
+
+    finally:
+        with app.sms_lock:
+            app.sms_counter -= 1
+            if app.sms_counter == 0:
+                current_app.working = False
 
     return "Successfully received", 200
 
@@ -66,4 +88,5 @@ def sms_reply():
 if __name__ == "__main__":
     os.makedirs(os.path.join(static_dir, "images", "generated"), exist_ok=True)
     init_db()
+    app.working = False
     app.run(host="0.0.0.0", port=5001, debug=True)

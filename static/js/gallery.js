@@ -9,6 +9,8 @@ function fetchMemories() {
      */
 
     $.getJSON('/memories', function(data) {
+        console.log('/memories returned ', data);
+
         allMemories = data;
         populateGallery();
     });
@@ -24,7 +26,7 @@ function displayMemory(cellNumber, imageFilename, caption) {
 
     const messageHtml = `
         <img src="/static/images/generated/${imageFilename}" alt="">
-        <p><em>Prompt: ${caption} --v 6.0 --ar 4:3</em></p>
+        <p><em>Prompt: ${caption} --v 6.0 --ar 3:2</em></p>
     `;
 
     $cell.append(messageHtml);
@@ -53,20 +55,35 @@ function rotateImages() {
      */
 }
 
-function checkForNewRequests() {
+function checkWorkingStatus() {
     /**
      * Check for new requests every 5 seconds. If there are new requests, 
-     * add the loading status to gallery cells.
+     * add the working status to gallery cells.
      */
+
+    const $cell = $(`#status`);
+
+    $.getJSON('/working', function(data) {
+        console.log('/working returned ', data);
+
+        if (data === true) {
+            $cell.empty();
+            $cell.append('Working...');
+        } else {
+            $cell.empty();
+        }
+    });
+
 }
 
 function checkForNewMemories() {
     /**
      * Check for new memories every 5 seconds. If there are new memories,
-     * add them to the gallery cells with loading status.
+     * add them to the gallery cells with working status.
      */
 }
 
 $(document).ready(function() {
     fetchMemories();
+    setInterval(checkWorkingStatus, 5000);
 });
