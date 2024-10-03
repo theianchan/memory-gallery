@@ -3,6 +3,14 @@ const availableCells = [1, 2, 4, 6, 7, 8, 10, 12, 14, 15, 16, 18, 20, 21];
 let allMemories = [];
 let lastNewMemoryTime = 0;
 
+function getRandom(list, elements){
+    /**
+     * Get a number of elements from a list.
+     */
+    
+    return list.sort(() => 0.5 - Math.random()).slice(0, elements);
+}
+
 function fetchMemories() {
     /**
      * Fetch all memories from the server.
@@ -12,7 +20,9 @@ function fetchMemories() {
         console.log('/memories returned ', data);
 
         allMemories = data;
-        populateGallery();
+        const displayMemories = getRandom(allMemories, availableCells.length);
+
+        populateGallery(displayMemories);
     });
 }
 
@@ -32,17 +42,17 @@ function displayMemory(cellNumber, imageFilename, caption) {
     $cell.append(messageHtml);
 }
 
-function populateGallery() {
+function populateGallery(memories) {
     /**
      * Populate the gallery.
      */
 
-    let memories = allMemories.sort(() => 0.5 - Math.random()).slice(0, availableCells.length);
-    let cells = availableCells.sort(() => 0.5 - Math.random()).slice(0, memories.length);
+    let cells = getRandom(availableCells, memories.length);
 
     for (let i = 0; i < memories.length; i++) {
         const memory = memories[i];
         const cellNumber = cells[i];
+
         displayMemory(cellNumber, memory.image_filename, memory.caption);
     }
 }
@@ -57,8 +67,7 @@ function rotateImages() {
 
 function checkWorkingStatus() {
     /**
-     * Check for new requests every 5 seconds. If there are new requests, 
-     * add the working status to gallery cells.
+     * Check for working status and display it in the status cell.
      */
 
     const $cell = $(`#status`);
@@ -78,12 +87,24 @@ function checkWorkingStatus() {
 
 function checkForNewMemories() {
     /**
-     * Check for new memories every 5 seconds. If there are new memories,
-     * add them to the gallery cells with working status.
+     * Check for new memories and add them to the gallery cells.
      */
+
+    $.getJSON('/memories', function(data) {
+        console.log('/memories returned ', data);
+
+        if (data.length > allMemories.length) {
+            const newMemories = data.slice(allMemories.length);
+            allMemories = data;
+            console.log('New memories:', newMemories);
+
+            populateGallery(newMemories);
+        }
+    });
 }
 
 $(document).ready(function() {
     fetchMemories();
     setInterval(checkWorkingStatus, 5000);
+    setInterval(checkForNewMemories, 5000);
 });
