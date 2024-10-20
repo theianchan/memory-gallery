@@ -7,6 +7,7 @@ from .config import template_dir, static_dir, NUM_MEMORIES, PHONE_NUMBER
 from .database import get_db_connection, init_db, get_memories
 from .images import generate_and_save_image
 from .prompts import get_image_prompts_captions
+from queue import Queue
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -14,6 +15,7 @@ logging.basicConfig(
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
+app.sms_queue = Queue()
 app.sms_lock = threading.Lock()
 app.sms_counter = 0
 
@@ -32,10 +34,9 @@ def home():
 
 @app.route("/view")
 def view_memories():
-    logging.debug("Getting memories")
     memories = get_memories()
-    logging.debug(f"Memories: {memories}")
-    return render_template("view.html", memories=memories)
+
+    return render_template("view.html", database=memories)
 
 
 @app.route("/memories")
@@ -45,7 +46,6 @@ def get_memories():
     c.execute("SELECT * FROM memories")
     memories = [dict(row) for row in c.fetchall()]
     conn.close()
-    logging.debug(f"Returning memories: {memories}")
     return jsonify(memories)
 
 
@@ -54,43 +54,57 @@ def get_working_status():
     return jsonify(getattr(current_app, "working", False))
 
 
+@app.route("/queue_status")
+def get_queue_status():
+    return jsonify({"queue_size": app.sms_queue.qsize()})
+
+
 @app.route("/sms", methods=["POST"])
 def sms_reply():
     message = request.form["Body"]
-    logging.debug(f"Text received: {message}")
+    phone_number = request.form["From"]
+    logging.debug(f"Text received from {phone_number}: {message}")
 
-    with app.sms_lock:
-        app.sms_counter += 1
-        if app.sms_counter == 1:
-            current_app.working = True
+    app.sms_queue.put((message, phone_number))
 
-    try:
-        image_prompt_captions = get_image_prompts_captions(message, NUM_MEMORIES)
-        image_prompt_captions = ast.literal_eval(image_prompt_captions)
-        logging.debug(f"Prompt-caption pairs: {image_prompt_captions}")
-
-        conn = get_db_connection()
-        c = conn.cursor()
-
-        for pair in image_prompt_captions:
-            image_filename = generate_and_save_image(pair["prompt"])
-            c.execute(
-                "INSERT INTO memories (message, prompt, caption, image_filename) VALUES (?, ?, ?, ?)",
-                (message, pair["prompt"], pair["caption"], image_filename),
-            )
-
-        conn.commit()
-        conn.close()
-
-        logging.debug("Memories stored in database")
-
-    finally:
-        with app.sms_lock:
-            app.sms_counter -= 1
-            if app.sms_counter == 0:
-                current_app.working = False
+    threading.Thread(target=process_sms_queue).start()
 
     return "Successfully received", 200
+
+
+def process_sms_queue():
+    with app.app_context():
+        while not app.sms_queue.empty():
+            message, phone_number = app.sms_queue.get()
+            with app.sms_lock:
+                app.sms_counter += 1
+
+            try:
+                image_prompt_captions = get_image_prompts_captions(message, NUM_MEMORIES)
+                image_prompt_captions = ast.literal_eval(image_prompt_captions)
+
+                conn = get_db_connection()
+                c = conn.cursor()
+
+                for pair in image_prompt_captions:
+                    image_filename = generate_and_save_image(pair["prompt"])
+                    c.execute(
+                        "INSERT INTO memories (message, prompt, caption, image_filename, phone_number) VALUES (?, ?, ?, ?, ?)",
+                        (message, pair["prompt"], pair["caption"], image_filename, phone_number),
+                    )
+
+                conn.commit()
+                conn.close()
+
+                logging.debug("Memories stored in database")
+
+            finally:
+                with app.sms_lock:
+                    app.sms_counter -= 1
+                    if app.sms_counter == 0:
+                        app.working = False
+
+            app.sms_queue.task_done()
 
 
 if __name__ == "__main__":

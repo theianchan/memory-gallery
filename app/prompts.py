@@ -153,7 +153,7 @@ def get_image_prompts_captions(message, num_memories=4):
     """
 
     try:
-        logging.debug(f"Prompting Claude with: {prompt}")
+        logging.debug(f"Prompting Claude")
         response = client.messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=1024,

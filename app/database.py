@@ -16,7 +16,8 @@ def init_db():
         message TEXT NOT NULL,
         prompt TEXT NOT NULL,
         caption TEXT NOT NULL,
-        image_filename TEXT NOT NULL)"""
+        image_filename TEXT NOT NULL,
+        phone_number TEXT NOT NULL)"""
     )
     conn.commit()
     conn.close()

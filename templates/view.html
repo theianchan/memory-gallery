@@ -3,22 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAKING MEMORY</title>
+    <title>MAKING mem - Database View</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
 </head>
 <body>
-    <table border="1">
+    <h1>Database Contents</h1>
+    <table>
         <tr>
             <th>ID</th>
             <th>Message</th>
             <th>Prompt</th>
             <th>Caption</th>
             <th>Image Filename</th>
+            <th>Phone Number</th>
             <th>Image</th>
         </tr>
-        {% if memories %}
-        {{ memories }}
-       
-    {% endif %}
+        {{ database }}
+        {% for mem in database %}
+        <tr>
+            <td>{{ mem.id }}</td>
+            <td>{{ mem.message }}</td>
+            <td>{{ mem.prompt }}</td>
+            <td>{{ mem.caption }}</td>
+            <td>{{ mem.image_filename }}</td>
+            <td>{{ mem.phone_number }}</td>
+            <td><img src="/static/images/generated/{{ mem.image_filename }}" alt="Generated Image"></td>
+        </tr>
+        {% endfor %}
     </table>
 </body>
 <script>

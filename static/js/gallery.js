@@ -32,14 +32,15 @@ function displayMemory(cellNumber, imageFilename, caption) {
      */
 
     const $cell = $(`#right-cell-${cellNumber}`);
-    $cell.empty();
-
-    const messageHtml = `
-        <img src="/static/images/generated/${imageFilename}" alt="">
-        <p><em>Prompt: ${caption}</em></p>
-    `;
-
-    $cell.append(messageHtml);
+    flashCell($cell);
+    setTimeout(() => {
+        $cell.empty();
+        const messageHtml = `
+            <img src="/static/images/generated/${imageFilename}" alt="">
+            <p><em>Prompt: ${caption}</em></p>
+        `;
+        $cell.append(messageHtml);
+    }, 5000);
 }
 
 function populateGallery(memories) {
@@ -103,8 +104,30 @@ function checkForNewMemories() {
     });
 }
 
+function updateQueueStatus() {
+    $.getJSON('/queue_status', function(data) {
+        const queueSize = data.queue_size;
+        const $workingSpan = $('#working');
+        if (queueSize === 0) {
+            console.log('No memories in queue.');
+            $workingSpan.text('No memories in queue.');
+        } else {
+            const memoryText = queueSize === 1 ? 'memory' : 'memories';
+            console.log(`Working on ${queueSize} ${memoryText}.`);
+            $workingSpan.text(`Working on ${queueSize} ${memoryText}.`);
+        }
+    });
+}
+
+function flashCell($cell) {
+    $cell.addClass('flashing');
+    setTimeout(() => {
+        $cell.removeClass('flashing');
+    }, 5000);
+}
+
 $(document).ready(function() {
     fetchMemories();
-    setInterval(checkWorkingStatus, 5000);
+    setInterval(updateQueueStatus, 5000);
     setInterval(checkForNewMemories, 5000);
 });
