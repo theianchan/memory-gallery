@@ -18,12 +18,12 @@
         .container {
             display: flex;
             width: 1700px;
-            height: 900px;
+            height: 980px;
         }
 
         .grid-container-left {
             width: 850px;
-            height: 900px;
+            height: 980px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: auto 1fr 1fr;
@@ -32,7 +32,7 @@
 
         .grid-container-right {
             width: 850px;
-            height: 900px;
+            height: 980px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: auto 1fr 1fr 1fr;
@@ -65,6 +65,10 @@
 
         .caption p {
             font-size: 16px;
+        }
+
+        .caption p b {
+            text-decoration: underline;
         }
 
         .top-row-left {
@@ -117,7 +121,8 @@
         <div class="grid-container-right">
             <div id="right-cell-1" class="grid-cell top-row-right caption">
                 <p>Try it yourself.</p>
-                <p>Text a memory to {{ phone_number }}.</p>
+                <p><b>Text a memory to {{ phone_number }}.</b><br />
+                <span id="working">No memories in queue.</span></p>
             </div>
             <div id="right-cell-2" class="grid-cell memory-cell"></div>
             <div id="right-cell-3" class="grid-cell memory-cell"></div>
