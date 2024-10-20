@@ -1,5 +1,5 @@
 const skippedCells = [3, 5, 9, 11, 13, 17, 19];
-const availableCells = [1, 2, 4, 6, 7, 8, 10, 12, 14, 15, 16, 18, 20, 21];
+const availableCells = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 let allMemories = [];
 let lastNewMemoryTime = 0;
 
@@ -31,12 +31,12 @@ function displayMemory(cellNumber, imageFilename, caption) {
      * Display an image and caption in a gallery cell.
      */
 
-    const $cell = $(`#cell-${cellNumber}`);
+    const $cell = $(`#right-cell-${cellNumber}`);
     $cell.empty();
 
     const messageHtml = `
         <img src="/static/images/generated/${imageFilename}" alt="">
-        <p><em>Prompt: ${caption} --v 6.0 --ar 3:2</em></p>
+        <p><em>Prompt: ${caption}</em></p>
     `;
 
     $cell.append(messageHtml);
@@ -47,9 +47,9 @@ function populateGallery(memories) {
      * Populate the gallery.
      */
 
-    let cells = getRandom(availableCells, memories.length);
+    let cells = getRandom(availableCells, Math.min(memories.length, availableCells.length));
 
-    for (let i = 0; i < memories.length; i++) {
+    for (let i = 0; i < cells.length; i++) {
         const memory = memories[i];
         const cellNumber = cells[i];
 

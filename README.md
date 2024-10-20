@@ -27,8 +27,15 @@ To view database:
 
 Remaining TODO:
 - Database storage (implemented)
-- Display order
+- Display order (done)
 - Enhanced error handling (not extremely worried about this)
 - Input validation (or this)
 - Async processing (seems to handle this pretty well already)
 - Production-ready logging (added a bunch more logs)
+- Loading state on individual images so you know where to look
+- Let images load one at a time
+
+- Database view to debug prompts
+- Potentially split prompt into two
+- Use templates to improve AI writing (https://writingexamples.com/)
+- Our goal: to one-shot nostalgia

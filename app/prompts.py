@@ -105,20 +105,6 @@ def get_image_prompts_captions(message, num_memories=4):
     to keep calm while waiting for the lights to go out in the living room 
     before they can dare to fall asleep.
 
-    5. A couple meets for the first time over dine-in-the-dark dinner at an 
-    upscale restaurant run by blind waitstaff. Earlier today, faced with 
-    his hesitation, she got to say, "I'll see you at 8 in the lobby. Don't
-    be late." He got to say, "Get me on the next flight to Bangkok." 
-    Tomorrow morning, as he's leaving for the airport, she'll say, "Want 
-    to have dinner with my parents?" And he does.
-
-    6. A woman feeds a deer as the sun shines, surrounded by lush vegetation 
-    and mossy rocks. The deer park lies halfway across the ocean between her 
-    and a man she met at a dating event, an event organized to repent for 
-    harm inflicted on two people he falsely believed didn't care about each 
-    other, a belief based on a lie told on a rooftop bar as fireworks erupted 
-    from the Taipei 101.
-
     Additionally:
 
     - Start the caption with descriptive language, before taking a more 

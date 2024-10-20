@@ -4,7 +4,7 @@ import os
 import logging
 import ast
 from .config import template_dir, static_dir, NUM_MEMORIES, PHONE_NUMBER
-from .database import get_db_connection, init_db
+from .database import get_db_connection, init_db, get_memories
 from .images import generate_and_save_image
 from .prompts import get_image_prompts_captions
 
@@ -28,6 +28,14 @@ def home():
         num_memories=NUM_MEMORIES,
         memories=memories,
     )
+
+
+@app.route("/view")
+def view_memories():
+    logging.debug("Getting memories")
+    memories = get_memories()
+    logging.debug(f"Memories: {memories}")
+    return render_template("view.html", memories=memories)
 
 
 @app.route("/memories")

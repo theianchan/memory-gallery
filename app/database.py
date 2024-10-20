@@ -20,3 +20,12 @@ def init_db():
     )
     conn.commit()
     conn.close()
+
+
+def get_memories():
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("SELECT * FROM memories")
+    memories = [dict(row) for row in c.fetchall()]
+    conn.close()
+    return memories
