@@ -4,7 +4,13 @@ import os
 import logging
 import ast
 from .config import template_dir, static_dir, NUM_MEMORIES, PHONE_NUMBER
-from .database import get_db_connection, init_db, get_memories
+from .database import (
+    get_db_connection,
+    init_db,
+    init_memories_display,
+    get_memories,
+    get_memories_display,
+)
 from .images import generate_and_save_image
 from .prompts import get_image_prompts_captions
 from queue import Queue
@@ -34,9 +40,9 @@ def home():
 
 @app.route("/view")
 def view_memories():
-    memories = get_memories()
+    memories_display = get_memories_display()
 
-    return render_template("view.html", database=memories)
+    return render_template("view.html", database=memories_display)
 
 
 @app.route("/memories")
@@ -80,7 +86,9 @@ def process_sms_queue():
                 app.sms_counter += 1
 
             try:
-                image_prompt_captions = get_image_prompts_captions(message, NUM_MEMORIES)
+                image_prompt_captions = get_image_prompts_captions(
+                    message, NUM_MEMORIES
+                )
                 image_prompt_captions = ast.literal_eval(image_prompt_captions)
 
                 conn = get_db_connection()
@@ -90,7 +98,13 @@ def process_sms_queue():
                     image_filename = generate_and_save_image(pair["prompt"])
                     c.execute(
                         "INSERT INTO memories (message, prompt, caption, image_filename, phone_number) VALUES (?, ?, ?, ?, ?)",
-                        (message, pair["prompt"], pair["caption"], image_filename, phone_number),
+                        (
+                            message,
+                            pair["prompt"],
+                            pair["caption"],
+                            image_filename,
+                            phone_number,
+                        ),
                     )
 
                 conn.commit()
@@ -110,5 +124,6 @@ def process_sms_queue():
 if __name__ == "__main__":
     os.makedirs(os.path.join(static_dir, "images", "generated"), exist_ok=True)
     init_db()
+    init_memories_display()
     app.working = False
     app.run(host="0.0.0.0", port=5001, debug=True)

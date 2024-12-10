@@ -3,19 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAKING mem - Database View</title>
+    <title>MEMORIES DATABASE</title>
     <style>
         table {
             border-collapse: collapse;
             width: 100%;
+            table-layout: fixed;
         }
-        th, td {
+        th {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
-        }
-        th {
             background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        th:nth-child(1) {
+            width: 20%;
+        }
+        th:nth-child(2) {
+            width: 30%;
+        }
+        th:nth-child(3) {
+            width: 50%;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            word-wrap: break-word;
         }
         img {
             max-width: 200px;
@@ -24,26 +41,24 @@
     </style>
 </head>
 <body>
-    <h1>Database Contents</h1>
     <table>
         <tr>
-            <th>ID</th>
-            <th>Message</th>
-            <th>Prompt</th>
-            <th>Caption</th>
-            <th>Image Filename</th>
-            <th>Phone Number</th>
-            <th>Image</th>
+            <!-- <th>ID</th> -->
+            <th>Guest Memory</th>
+            <!-- <th>Prompt</th> -->
+            <th>AI Caption</th>
+            <!-- <th>Image Filename</th> -->
+            <!-- <th>Phone Number</th> -->
+            <th>AI Image</th>
         </tr>
-        {{ database }}
         {% for mem in database %}
         <tr>
-            <td>{{ mem.id }}</td>
+            <!-- <td>{{ mem.id }}</td> -->
             <td>{{ mem.message }}</td>
-            <td>{{ mem.prompt }}</td>
+            <!-- <td>{{ mem.prompt }}</td> -->
             <td>{{ mem.caption }}</td>
-            <td>{{ mem.image_filename }}</td>
-            <td>{{ mem.phone_number }}</td>
+            <!-- <td>{{ mem.image_filename }}</td> -->
+            <!-- <td>{{ mem.phone_number }}</td> -->
             <td><img src="/static/images/generated/{{ mem.image_filename }}" alt="Generated Image"></td>
         </tr>
         {% endfor %}

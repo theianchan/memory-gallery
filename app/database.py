@@ -23,10 +23,40 @@ def init_db():
     conn.close()
 
 
+def init_memories_display():
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("DROP VIEW IF EXISTS memories_display")
+    c.execute(
+        """
+        CREATE VIEW memories_display AS 
+        SELECT *
+        FROM memories m
+        WHERE id = (
+            SELECT MIN(id)
+            FROM memories m2
+            WHERE m2.message = m.message
+        )
+        AND phone_number NOT IN ('+16282194389', '+13127858285')
+    """
+    )
+    conn.commit()
+    conn.close()
+
+
 def get_memories():
     conn = get_db_connection()
     c = conn.cursor()
     c.execute("SELECT * FROM memories")
+    memories = [dict(row) for row in c.fetchall()]
+    conn.close()
+    return memories
+
+
+def get_memories_display():
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("SELECT * FROM memories_display")
     memories = [dict(row) for row in c.fetchall()]
     conn.close()
     return memories
