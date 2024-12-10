@@ -45,6 +45,13 @@ def view_memories():
     return render_template("view.html", database=memories_display)
 
 
+@app.route("/view-mobile")
+def view_memories_mobile():
+    memories_display = get_memories_display()
+
+    return render_template("view-mobile.html", database=memories_display)
+
+
 @app.route("/memories")
 def get_memories():
     conn = get_db_connection()

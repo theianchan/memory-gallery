@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMORIES DATABASE</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 500px;
+            table-layout: fixed;
+        }
+        th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        img {
+            width: 100%;
+            /* max-height: 200px; */
+        }
+    </style>
+</head>
+<body>
+    <table>
+        {% for mem in database %}
+        <tr>
+            <td>
+                <p><b>Visitor memory:</b><br>{{ mem.message }}</p>
+                <img src="/static/images/generated/{{ mem.image_filename }}" alt="Generated Image">
+                <p style="font-size: 12px;"><em>AI caption: {{ mem.caption }}</em></p>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+<script>
+</script>
+</html>
